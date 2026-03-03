@@ -23,7 +23,7 @@ def parse_arguments():
                         help='Serial baud rate.')
     parser.add_argument('--update-interval', type=float, default=0.5,
                         help='Interval in seconds for logging and serial updates.')
-    parser.add_argument('--log-file', type=str, default='system_logs/posture_monitor.log',
+    parser.add_argument('--log-file', type=str, default='vision_subsystem_v1/system_logs/posture_monitor.log',
                         help='Path to log file.')
     return parser.parse_args()
 
