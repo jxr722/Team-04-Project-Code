@@ -21,6 +21,8 @@ def parse_arguments():
                         help='Serial port for ESP32 (e.g. /dev/tty.usbserial-0001). Omit to skip.')
     parser.add_argument('--baudrate', type=int, default=115200,
                         help='Serial baud rate.')
+    parser.add_argument('--update-interval', type=float, default=0.5,
+                        help='Interval in seconds for logging and serial updates.')
     parser.add_argument('--log-file', type=str, default='posture_monitor.log',
                         help='Path to log file.')
     return parser.parse_args()
@@ -40,8 +42,7 @@ def main():
     window_frames = int(fps * args.avg_window)
     score_history = deque(maxlen=window_frames)
 
-    # Log every 0.5 Second
-    log_interval = int(fps * 0.5)
+    update_interval = int(fps * args.update_interval)
     frame_count = 0
 
     while True:
@@ -68,13 +69,11 @@ def main():
 
         display.draw(frame, result)
 
-        # Log the result
+        # Log the result and send data to esp32
         frame_count += 1
-        if frame_count % log_interval == 0:
+        if frame_count % update_interval == 0:
             log(result)
-
-        # Send data to esp32
-        serial_stream.send(conn, result)
+            serial_stream.send(conn, result)
 
         cv2.imshow('Posture Monitor', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
