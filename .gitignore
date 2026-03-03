@@ -215,3 +215,6 @@ __marimo__/
 
 # Customized
 *.log
+**/logs/
+**/log/
+**/system_logs/
