@@ -8,9 +8,9 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "/Users/a123456/Library/CloudStorage/OneDrive-个人/所有资料/University Courses/9.1 Ecse395 Spring2026/Prototype/Team-04-Project-Code/include",
-                "/Users/a123456/Library/CloudStorage/OneDrive-个人/所有资料/University Courses/9.1 Ecse395 Spring2026/Prototype/Team-04-Project-Code/src",
-                "/Users/a123456/Library/CloudStorage/OneDrive-个人/所有资料/University Courses/9.1 Ecse395 Spring2026/Prototype/Team-04-Project-Code/.pio/libdeps/adafruit_feather_esp32_v2/ESP32Servo/src",
+                "/Users/a123456/Library/CloudStorage/OneDrive-个人/所有资料/University Courses/9.1 Ecse395 Spring2026/Prototype/Team-04-Project-Code/esp32_subsystem_v1/include",
+                "/Users/a123456/Library/CloudStorage/OneDrive-个人/所有资料/University Courses/9.1 Ecse395 Spring2026/Prototype/Team-04-Project-Code/esp32_subsystem_v1/src",
+                "/Users/a123456/Library/CloudStorage/OneDrive-个人/所有资料/University Courses/9.1 Ecse395 Spring2026/Prototype/Team-04-Project-Code/esp32_subsystem_v1/.pio/libdeps/adafruit_feather_esp32_v2/ESP32Servo/src",
                 "/Users/a123456/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/newlib/platform_include",
                 "/Users/a123456/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include",
                 "/Users/a123456/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/esp_additions/freertos",
@@ -245,9 +245,9 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "/Users/a123456/Library/CloudStorage/OneDrive-个人/所有资料/University Courses/9.1 Ecse395 Spring2026/Prototype/Team-04-Project-Code/include",
-                    "/Users/a123456/Library/CloudStorage/OneDrive-个人/所有资料/University Courses/9.1 Ecse395 Spring2026/Prototype/Team-04-Project-Code/src",
-                    "/Users/a123456/Library/CloudStorage/OneDrive-个人/所有资料/University Courses/9.1 Ecse395 Spring2026/Prototype/Team-04-Project-Code/.pio/libdeps/adafruit_feather_esp32_v2/ESP32Servo/src",
+                    "/Users/a123456/Library/CloudStorage/OneDrive-个人/所有资料/University Courses/9.1 Ecse395 Spring2026/Prototype/Team-04-Project-Code/esp32_subsystem_v1/include",
+                    "/Users/a123456/Library/CloudStorage/OneDrive-个人/所有资料/University Courses/9.1 Ecse395 Spring2026/Prototype/Team-04-Project-Code/esp32_subsystem_v1/src",
+                    "/Users/a123456/Library/CloudStorage/OneDrive-个人/所有资料/University Courses/9.1 Ecse395 Spring2026/Prototype/Team-04-Project-Code/esp32_subsystem_v1/.pio/libdeps/adafruit_feather_esp32_v2/ESP32Servo/src",
                     "/Users/a123456/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/newlib/platform_include",
                     "/Users/a123456/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include",
                     "/Users/a123456/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/esp_additions/freertos",
