@@ -1,33 +1,64 @@
 #include <Arduino.h>
 
 /*
-AI SYSTEM ONLY TEST
-Reads posture score every second and prints it.
+AI SYSTEM TEST
+Receives posture data from Python over USB serial.
+Expected format:
+"score,avg_score,neck_angle,torso_angle\n"
 */
 
-void setup() {
-  Serial.begin(9600);
+String incomingLine = "";
 
-  // TODO: Initialize AI communication here
-  // Example:
-  // Serial2.begin(115200);
+void setup() {
+  Serial.begin(115200);   // MUST match Python baudrate
+  delay(2000);            // Allow time for serial monitor
+
+  Serial.println("ESP32 Ready. Waiting for posture data...");
 }
 
 void loop() {
 
-  // ===== REQUEST SCORE FROM AI =====
-  // TODO: Replace this with real AI communication
+  // Check if data is available
+  while (Serial.available()) {
+    char c = Serial.read();
 
-  int score = -1;
+    // Build the line until newline
+    if (c == '\n') {
+      processLine(incomingLine);
+      incomingLine = "";  // Clear for next message
+    } else {
+      incomingLine += c;
+    }
+  }
+}
 
-  // Example placeholder:
-  // if (Serial2.available()) score = Serial2.parseInt();
+void processLine(String line) {
 
-  // TEMP TEST VALUE:
-  score = random(0, 100);
+  int score, avg_score, neck_angle, torso_angle;
 
-  Serial.print("Received posture score: ");
-  Serial.println(score);
+  // Parse CSV
+  int parsed = sscanf(line.c_str(), "%d,%d,%d,%d",
+                      &score,
+                      &avg_score,
+                      &neck_angle,
+                      &torso_angle);
 
-  delay(1000);
+  if (parsed == 4) {
+    Serial.println("---- Posture Data Received ----");
+    Serial.print("Score: ");
+    Serial.println(score);
+
+    Serial.print("Average Score: ");
+    Serial.println(avg_score);
+
+    Serial.print("Neck Angle: ");
+    Serial.println(neck_angle);
+
+    Serial.print("Torso Angle: ");
+    Serial.println(torso_angle);
+
+    Serial.println("------------------------------");
+  } else {
+    Serial.println("Failed to parse incoming data.");
+  }
 }
