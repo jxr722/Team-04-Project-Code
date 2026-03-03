@@ -1,10 +1,10 @@
 #include <Arduino.h>
 
 //ULTRASONIC PIN DEFINITIONS -- CHANGE AFTER WIRING CIRCUIT
-#define TRIG_PIN 0
-#define ECHO_PIN 0
+#define TRIG_PIN 26 //A0
+#define ECHO_PIN 25 //A1
 
-const float OCCUPIED_DISTANCE_CM = 80.0; //person is 80cm away = occupied CHANGE THIS AFTER TESTING
+const float OCCUPIED_DISTANCE_CM = 10.0; //person is 80cm away = occupied CHANGE THIS AFTER TESTING
 
 bool lastOccupied = false;
 

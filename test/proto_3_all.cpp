@@ -2,14 +2,14 @@
 #include <ESP32Servo.h>
 
 // PINS: CHANGE BASED ON CIRCUIT WIRING
-#define TRIG_PIN 0 //ultrasonic sensor
-#define ECHO_PIN 0 //ultrasonic sensor
+#define TRIG_PIN 26 //ultrasonic sensor A0
+#define ECHO_PIN 25 //ultrasonic sensor A1
 
-#define LED_GREEN 0
-#define LED_YELLOW 0
-#define LED_RED 0
+#define LED_GREEN 13
+#define LED_YELLOW 12
+#define LED_RED 27
 
-#define SERVO_PIN 0
+#define SERVO_PIN 32
 
 // CONSTANTS
 const float OCCUPIED_DISTANCE_CM = 80.0; //person is 80cm away = occupied CHANGE THIS AFTER TESTING
