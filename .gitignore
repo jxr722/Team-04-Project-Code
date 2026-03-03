@@ -213,7 +213,7 @@ __marimo__/
 .vscode/launch.json
 .vscode/ipch
 
-# Customized
+# log files and folders
 *.log
 **/logs/
 **/log/
