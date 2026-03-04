@@ -218,3 +218,6 @@ __marimo__/
 **/logs/
 **/log/
 **/system_logs/
+
+# macOS
+.DS_Store
