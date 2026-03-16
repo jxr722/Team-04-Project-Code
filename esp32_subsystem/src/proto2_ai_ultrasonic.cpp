@@ -53,7 +53,7 @@ void loop() {
       Serial.print(", Avg Score: ");
       Serial.println(currentAvgScore);
     } else {
-      Serial.println("OCCUPIED, Waiting for posture data...");
+      Serial.println("OCCUPIED, Score: --, Avg Score: --");
     }
   } else {
     Serial.println("NOT OCCUPIED");

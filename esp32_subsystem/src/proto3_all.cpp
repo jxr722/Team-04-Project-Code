@@ -2,36 +2,34 @@
 #include "process_serial.h"
 #include "sensor.h"
 
-// CONSTANTS
-const unsigned long SENSOR_INTERVAL = 1000; // read from sensor every 1 sec
-const unsigned long FORTY_MIN = 40UL * 60UL * 1000UL;
-const unsigned long TEN_SEC = 10000UL;
-const unsigned long EMPTY_RESET_DELAY = 60000UL;
-
+// Configurations
+// User-configurable thresholds
+const unsigned long TIMER_B_THRESHOLD = 1UL * 60UL * 1000UL; // sitting too long
+const unsigned long TIMER_A_THRESHOLD = 10UL * 1000UL;         // poor posture too long
+const unsigned long EMPTY_RESET_DELAY = 5UL * 1000UL;         // seat empty before Timer B resets
 // Posture score thresholds (0-100, higher = better posture)
-const int HEALTHY_MIN = 70;
+const int HEALTHY_MIN = 55;
 const int MODERATE_MIN = 40;
+
 
 // STATE VARIABLES
 bool seatOccupied = false;
 bool lastSeatOccupied = false;
 
-// TIMERS
-unsigned long lastSensorRead = 0;
-
-unsigned long timerBStart = 0; // Timer B: seat occupancy timer
+// Timer B: how long the user has been sitting
+unsigned long timerBStart = 0;
 bool timerBRunning = false;
+bool timerBTapped = false; // already tapped for this sitting period
 
-unsigned long timerAStart = 0; // Timer A: poor posture timer
+// Timer A: how long the user has had poor posture
+unsigned long timerAStart = 0;
 bool timerARunning = false;
+bool timerATapped = false; // already tapped for this poor posture period
 
-unsigned long healthyStart = 0; // timer to ensure healthy posture for >10s
-bool healthyTimerRunning = false;
-
-unsigned long seatEmptyStart = 0; // timer to ensure seat empty long enough to count as a "break"
+// Seat empty delay: wait before resetting Timer B
+unsigned long seatEmptyStart = 0;
 bool seatEmptyDelayRunning = false;
 
-// SETUP
 void setup() {
   Serial.begin(115200);
   delay(2000);
@@ -45,137 +43,132 @@ void setup() {
   Serial.println("System Ready.");
 }
 
-// MAIN LOOP
 void loop() {
 
   unsigned long now = millis();
+  float distance = measureDistance();
+  seatOccupied = distance < OCCUPIED_DISTANCE_CM;
 
-  // READ FROM ULTRASONIC EVERY SECOND
-  if (now - lastSensorRead >= SENSOR_INTERVAL) {
-    lastSensorRead = now;
-
-    float distance = measureDistance();
-    seatOccupied = distance < OCCUPIED_DISTANCE_CM;
-  }
-
-  // SEAT OCCUPIED LOGIC
+  // SEAT OCCUPIED
   if (seatOccupied) {
 
-    // Start timer B if not running already
+    if (!lastSeatOccupied) {
+      Serial.println("AI START");
+      seatEmptyDelayRunning = false;
+    }
+
+    // Start Timer B if not running
     if (!timerBRunning) {
       timerBStart = now;
       timerBRunning = true;
-      Serial.println("AI START");
+      timerBTapped = false;
     }
 
-    seatEmptyDelayRunning = false;
-
-    // Check if seating duration is 40 minutes
-    if (timerBRunning && now - timerBStart >= FORTY_MIN) {
-      servoTap(3, 600); // 3 slow taps
-      timerBStart = now;
+    // Timer B: sitting too long, slow taps
+    if (timerBRunning && !timerBTapped && now - timerBStart >= TIMER_B_THRESHOLD) {
+      servoTap(3, 600);
+      timerBTapped = true;
     }
 
-    // Read AI serial data
+    // Read posture score
     readSerial();
     int score = currentScore;
 
     if (score >= 0) {
 
-      // If healthy posture (green)
+      // Healthy posture (green)
       if (score >= HEALTHY_MIN) {
-
         setLED(true, false, false);
 
-        // Start healthy posture timer if it hasn't started already
-        if (!healthyTimerRunning) {
-          healthyStart = now;
-          healthyTimerRunning = true;
-        }
-
-        // Stop timer A if healthy posture for more than 10 seconds
-        if (healthyTimerRunning && now - healthyStart >= TEN_SEC) {
-          timerARunning = false;
-        }
+        // Reset Timer A: posture is good
+        timerARunning = false;
+        timerATapped = false;
       }
 
-      // If moderately bad posture (yellow)
+      // Moderate bad posture (yellow)
       else if (score >= MODERATE_MIN) {
-
         setLED(false, true, false);
-        healthyTimerRunning = false;
 
+        // Start or continue Timer A
         if (!timerARunning) {
           timerAStart = now;
           timerARunning = true;
+          timerATapped = false;
         }
       }
 
-      // If bad posture (red)
+      // Bad posture (red)
       else {
-
         setLED(false, false, true);
-        healthyTimerRunning = false;
 
+        // Start or continue Timer A
         if (!timerARunning) {
           timerAStart = now;
           timerARunning = true;
+          timerATapped = false;
         }
+      }
 
-        servoTap(5, 120); // 5 quick taps
+      // Timer A exceeded: poor posture too long, tap.
+      if (timerARunning && !timerATapped && now - timerAStart >= TIMER_A_THRESHOLD) {
+        servoTap(5, 120);
+        timerATapped = true;
       }
     }
   }
 
-  // SEAT NOT OCCUPIED LOGIC
+  // SEAT NOT OCCUPIED
   else {
 
-    // When the seat just got empty
+    // Seat just became empty
     if (lastSeatOccupied) {
+      Serial.println("AI STOP");
       seatEmptyStart = now;
       seatEmptyDelayRunning = true;
-      Serial.println("AI STOP");
       currentScore = -1;
       currentAvgScore = -1;
     }
 
-    // Stop Timer A
+    // Stop Timer A, turn off LEDs and servo
     timerARunning = false;
-    healthyTimerRunning = false;
-
+    timerATapped = false;
     setLED(false, false, false);
     tapServo.write(neutralPos);
 
-    // Discard serial buffer while not occupied
+    // Discard serial buffer
     while (Serial.available()) {
       Serial.read();
     }
 
-    // Reset Timer B after 60 seconds of seat empty (break threshold)
+    // Reset Timer B after seat empty long enough
     if (seatEmptyDelayRunning && now - seatEmptyStart >= EMPTY_RESET_DELAY) {
       timerBRunning = false;
+      timerBTapped = false;
       seatEmptyDelayRunning = false;
     }
   }
 
-  // DEBUG print
-  Serial.print("Time(ms): ");
-  Serial.print(now);
-  Serial.print(", Occupied: ");
+  // DEBUG
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.print(" cm, Occupied: ");
   Serial.print(seatOccupied ? "YES" : "NO");
 
-  Serial.print(", TimerA(ms): ");
-  if (timerARunning) Serial.print(now - timerAStart);
+  Serial.print(", TimerA: ");
+  if (timerARunning) { Serial.print(now - timerAStart); Serial.print("ms"); }
   else Serial.print("OFF");
 
-  Serial.print(", TimerB(ms): ");
-  if (timerBRunning) Serial.print(now - timerBStart);
+  Serial.print(", TimerB: ");
+  if (timerBRunning) { Serial.print(now - timerBStart); Serial.print("ms"); }
   else Serial.print("OFF");
 
   Serial.print(", Score: ");
-  Serial.print(currentScore);
+  if (currentScore >= 0) Serial.print(currentScore);
+  else Serial.print("--");
 
   Serial.println();
 
   lastSeatOccupied = seatOccupied;
+
+  delay(200);
 }
