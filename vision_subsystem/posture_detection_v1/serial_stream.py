@@ -22,7 +22,7 @@ def connect(port, baudrate=115200):
 
 def send(conn, result):
     """
-    Send posture data to ESP32 as CSV: "score,avg_score,neck_angle,torso_angle\n"
+    Send posture data to ESP32 as CSV: "score,avg_score\n"
 
     Args:
         conn: serial.Serial object from connect(), or None.
@@ -31,17 +31,15 @@ def send(conn, result):
     if conn is None:
         return
 
-    line = "{},{},{},{}\n".format(
+    line = "{},{}\n".format(
         result["score"],
         result["avg_score"],
-        int(result["neck_angle"]),
-        int(result["torso_angle"]),
     )
 
     try:
         conn.write(line.encode())
     except serial.SerialException:
-        print("Serial send failed (device disconnected?)")
+        print("Serial send failed.")
 
 
 def disconnect(conn):
