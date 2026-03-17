@@ -72,7 +72,7 @@ void loop() {
 
     // Read posture score
     readSerial();
-    int score = currentScore;
+    int score = currentAvgScore;
 
     if (score >= 0) {
 
@@ -164,6 +164,10 @@ void loop() {
 
   Serial.print(", Score: ");
   if (currentScore >= 0) Serial.print(currentScore);
+  else Serial.print("--");
+
+  Serial.print(", Avg: ");
+  if (currentAvgScore >= 0) Serial.print(currentAvgScore);
   else Serial.print("--");
 
   Serial.println();
